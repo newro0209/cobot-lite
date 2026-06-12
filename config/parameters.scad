@@ -39,10 +39,20 @@ nema17_pilot_d = 22;          // 센터 파일럿 직경
 nema17_bolt_d = 3;            // M3
 
 /* ===== 감속비 (gear ratio) — CON-005: 5/10/20만 허용 ===== */
+// 주의: MG17-G10(10:1)은 허용 토크 5N·m로 급락 — 변경 시 토크 재검증 (docs/torque-budget.md)
 ratio_J1 = 20;
 ratio_J2 = 20;
-ratio_J3 = 20;   // [TBD-3] SF2423 vs SF2424
+ratio_J3 = 20;   // SF2423 + 20:1 확정 (TBD-3 해결)
 ratio_J4 = 5;
+
+/* ===== 기어박스 (gearbox) — MG17 데이터시트 (docs/tbd-research.md TBD-5) ===== */
+gbx_frame = 42;            // NEMA 17 플랜지, 모터와 동일 42각
+gbx_len_20to1 = 51;        // MG17-G20 길이 (J1~J3)
+gbx_len_5to1  = 40;        // MG17-G5 길이 (J4)
+gbx_out_shaft_d = 8;       // 출력축 직경
+gbx_in_insert = 9.5;       // 입력 결합 깊이 — SF24 축 길이 호환 확인 항목
+gbx_mass_20to1 = 400;      // g — 질량 예산 계산용
+gbx_mass_5to1  = 350;      // g
 
 /* ===== 질량/성능 예산 ===== */
 payload = 1.0;            // kg, 그리퍼 포함 정격 (PER-001)

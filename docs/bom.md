@@ -11,8 +11,8 @@ CST-001: 동등 사양 시 AliExpress 최저가 기준.
 | 스테퍼 모터(stepper motor) | 산요덴키 SF2424-12B41 (0.78N·m, 1.2A, 0.51kg) | 2 | | | J1, J2 |
 | 스테퍼 모터 | 산요덴키 SF2423-12B41 (≈0.56N·m, 1.2A, 0.38kg) | 1 | | | J3 |
 | 스테퍼 모터 | 산요덴키 SF2422-12B41 (≈0.43N·m, 1.2A, 0.30kg) | 1 | | | J4 |
-| 유성 기어박스(planetary gearbox) 단품 | StepperOnline MG17-G20 (20:1, 입력축 5mm, 연속 10N·m, 백래시 30~45arcmin) | 3 | ~₩22,000 | [AliExpress: Nema 17 Planetary Gearbox 5mm Input](https://www.omc-stepperonline.com/mg-series-planetary-gearbox-gear-ratio-20-1-backlash-30-arc-min-for-nema-17-stepper-motor-mg17-g20) | J1, J2, J3. SF24 축 5mm 확인 필요 |
-| 유성 기어박스 단품 | StepperOnline MG17-G5 (5:1, 입력축 5mm) | 1 | ₩21,650 | 동일 리스팅 (Ratio 5:1 옵션) | J4 |
+| 유성 기어박스(planetary gearbox) 단품 | StepperOnline MG17-G20 (20:1, 연속 10N·m, 백래시 ≤50arcmin, 효율 90%, 400g, L51mm) | 3 | ~₩22,000 | [AliExpress: Nema 17 Planetary Gearbox 5mm Input](https://www.omc-stepperonline.com/mg-series-planetary-gearbox-gear-ratio-20-1-backlash-30-arc-min-for-nema-17-stepper-motor-mg17-g20) | J1, J2, J3. 입력 ⌀5×9.5mm — SF24 축 결합 확인 |
+| 유성 기어박스 단품 | StepperOnline MG17-G5 (5:1, 연속 9N·m, 백래시 ≤30arcmin, 효율 90%, 350g, L40mm) | 1 | ₩21,650 | 동일 리스팅 (Ratio 5:1 옵션) | J4 |
 
 ## 베어링·체결 (CON-001/002)
 
