@@ -48,8 +48,8 @@ ratio_J4 = 5;
 payload = 1.0;            // kg, 그리퍼 포함 정격 (PER-001)
 moving_mass_budget = 0.8; // kg, 상완 이후 이동부 상한 (MEC-007)
 
-/* ===== 출력 제약 — MFG-004 [TBD-8] ===== */
-build_volume = [220, 220, 250];
+/* ===== 출력 제약 — MFG-004 (Creality SparkX i7, TBD-8 해결) ===== */
+build_volume = [260, 260, 255];
 
 /* ===== 공통 가공 여유 ===== */
 clearance_fit = 0.3;      // 회전/슬라이드 끼움 여유

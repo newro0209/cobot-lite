@@ -7,11 +7,9 @@
 ## 산출물 범위
 
 - 기구 설계 (OpenSCAD) — 1단계 PETG-CF 출력, 2단계 CNC 전환 전제
-- 전장 설계 (DRV8825 ×4, 24V 단일 전원)
-- 관절 제어 펌웨어 (UART 명령 수신 / 개루프 스테퍼 구동 / 호밍)
 - BOM
 
-역기구학(IK), 경로 계획, G-code 생성, 그리퍼, 안전 기능은 범위 외 — 상위 프로젝트 책임.
+역기구학(IK), 경로 계획, G-code 생성, 그리퍼, 안전 기능, 전장 설계, 제어 펌웨어는 범위 외 — 상위/후속 프로젝트 책임.
 
 ## 저장소 구조
 
@@ -23,8 +21,7 @@
 | [lib/utils.scad](lib/utils.scad) | 공통 모듈 (베어링 시트, 볼트 홀 등) |
 | [assembly/assembly.scad](assembly/assembly.scad) | 전체 조립 모델 (간섭 확인용) |
 | [export/stl/](export/stl/) | 출력용 STL |
-| [firmware/](firmware/) | 관절 제어 펌웨어 |
-| [docs/](docs/) | BOM, 질량/토크 예산, 호밍, 설계 결정 기록 |
+| [docs/](docs/) | BOM, 질량/토크 예산, 설계 결정 기록 |
 
 ## STL 내보내기
 
