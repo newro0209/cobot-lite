@@ -5,8 +5,8 @@
 // 좌표계: z0 = 장착면(측판 A' 외면, 조립 y=-21.3), +z = 외측(-Y),
 //        +X = 혼 방향 (조립 시 하완 +90° 방향 = 크랭크와 평행사변형 쌍)
 // 출력 자세: 장착면(플랜지) 베드 — 전 형상 수직 벽/상향 축소, 서포트 불요
-// 체결: M4 ×3 (r17 볼트 서클, 상면 딥 카운터보어) + 레지스터 보스 홀 ⌀5.4
-//   — 구동 링크 력 ≈ 108 N 전단은 레지스터 보스가, 모멘트는 볼트가 부담
+// 체결: M4 FHCS ×3 (r17 볼트 서클) — 구동 링크 력 ≈ 108 N 전단을 M4 ×3이
+//   분담(≈36 N/개). 레지스터 보스 폐지 (v0.15 — 동일 측판 양측 장착 호환)
 // 핀: 5mm 숄더 볼트 (M4 파일럿, 상면에서) — 링크 평면(y≈-52)과 정렬
 include <../config/parameters.scad>
 use <../lib/utils.scad>
@@ -44,9 +44,6 @@ module drive_horn() {
             translate([horn_mount_r_local(), 0, arm_plate_t - 2.2])
                 cylinder(d1 = 4.4, d2 = 9, h = 2.3);
         }
-        // 레지스터 보스 홀 ⌀5.4 (장착면, 깊이 3.2)
-        rotate([0, 0, 30]) translate([horn_mount_r_local(), 0, -0.1])
-            cylinder(d = 5.4, h = 3.3);
         // 구동 링크 핀: M4 파일럿 (상면에서, 5mm 숄더 볼트)
         translate([j3_crank_len, 0, horn_th - 12])
             cylinder(d = set_screw_pilot_d, h = 12.1);

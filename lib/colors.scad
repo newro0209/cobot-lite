@@ -4,13 +4,10 @@
 /* 정적 (무채색) */
 C_BASE      = "#3f3f3f";
 C_TURNTABLE = "#5a5a5a";
-C_SPACER    = "#4d4d4d";
 C_SHOULDER  = "#767676";
-C_ANCHOR    = "#8a8a8a";   // 평행사변형 정적 핀 앵커 (어깨 부속)
 
 /* 동적 — 카테고리 톤온톤 */
 C_UPPERARM     = "#3a6f9f";   // 상완 (파랑)
-C_UPPERARM_TIP = "#4a82b5";   // 상완 팁 섹션 (분할 출력 시 구분)
 C_CRANK        = "#c2702e";   // J3 구동계 (주황)
 C_DRIVELINK    = "#d98a45";
 C_ROCKER       = "#2f6f44";   // 수동 평행사변형 (초록)

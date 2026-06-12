@@ -1,65 +1,44 @@
-// 턴테이블 (turntable) — J1 회전체 (MEC-003)
-// 허브 보스가 6810ZZ ×2 내경에 직접 안착 (CON-003), 스템이 J1 기어박스
-// 출력축(⌀8×20)에 M4 무두 볼트 ×2로 결합 (베이스 칼럼 액세스 홀로 체결).
-// 상판에 어깨 텅(shoulder) M5 ×4 체결. 출력 자세: 상판을 베드에 (뒤집어 출력).
+// 턴테이블 (turntable) — 디스크 + 외륜 컵 + 출력축 스템 일체 (v0.15 재설계)
+// =====================================================================
+// 좌표: z0 = 디스크 상면(어깨 장착면), 본체 -z. 도립 출력(상면 베드 — 서포트리스)
+// 컵 스커트: 6810ZZ 외륜을 잡는다 — 상부 압입 존 + 내부 숄더(상부 외륜 상면
+//   접촉), 하부는 슬립 존(베이스 포스트 하부 베어링 외륜의 반경 가이드).
+//   구 turntable_spacer(별도 링) 폐지 — 이격 30mm는 베이스 포스트 랜드가 결정
+// 스템: 포스트 보어 ⌀24 통과, 선단 ⌀8 보어 + M4 무두 파일럿 ×2 (90° 위상,
+//   베이스 칼럼 액세스 홀과 z 정렬)
+// 어깨 장착: M5 — 풋 탭 관통 ×4 (±40, ±25) + 플랜지 직결 ×2 (0, ±25), 너트 하면
 include <../config/parameters.scad>
 use <../lib/utils.scad>
 
-/* ===== 파생 치수 (로컬 z=0 = 스템 하면) ===== */
-stem_h      = col_open_h - 1;                          // 개방 존 높이 − 플로어 여유
-boss_h      = 2 * BRG_6810ZZ[2] + turntable_bearing_gap; // 베어링 스팬 44
-bore_depth  = gbx_out_shaft_len - arm_plate_t - 1;     // 출력축 물림 깊이
-z_flg       = stem_h + boss_h;                         // 상판 하면
-vane_r      = (turntable_top_d - 16) / 2;              // 리미트 베인 반경
+skirt_od = BRG_6810ZZ[1] + 0.55 + 8;      // 73.4 — 슬립 보어 + 벽 4
+stem_len = 75;                            // 디스크 하면 → 스템 선단 (z -83)
 
 module turntable() {
     difference() {
         union() {
-            cylinder(d = j1_stem_d, h = stem_h + 0.1);            // 스템
-            translate([0, 0, stem_h]) bearing_boss(BRG_6810ZZ, boss_h); // 허브 보스
-            // 상판 — 상면 모서리 챔퍼 2mm (도립 출력 시 베드측 엘리펀트풋 완화)
-            translate([0, 0, z_flg])
-                cylinder(d = turntable_top_d, h = turntable_top_t - 2);
-            translate([0, 0, z_flg + turntable_top_t - 2])
-                cylinder(d1 = turntable_top_d, d2 = turntable_top_d - 4, h = 2);
-            // J1 리미트 스위치 베인 (vane) — 하향 탭, 각도 0° 기준
-            translate([vane_r - 4, -4, z_flg - 10])
-                cube([8, 8, 10.1]);
+            translate([0, 0, -turntable_top_t])
+                cylinder(d = turntable_top_d, h = turntable_top_t);
+            translate([0, 0, -53]) cylinder(d = skirt_od, h = 45);   // 컵 스커트
+            translate([0, 0, -8 - stem_len])
+                cylinder(d = tt_stem_d, h = stem_len);
+            // J1 리미트 베인 — 스커트 외측 반경 탭 (방위각 180), 하단이 레버 타격
+            rotate(180) translate([38, -3, -55.5]) cube([4, 6, 14]);
         }
-
-        // J1 출력축 보어 + 셋스크류 ×2 (90° 간격, 베이스 액세스 홀 ±45°와 정렬)
-        translate([0, 0, -0.1])
-            cylinder(d = gbx_out_shaft_d + clearance_fit / 2, h = bore_depth + 0.1);
-
-        // 허브 중공 (클램프 존 위 → 상판 관통, ⌀30) — 경량 + 배선 통로 (v0.12).
-        // 6810 보스 벽 잔존 10mm — 압입 후프 충분
-        translate([0, 0, bore_depth + 3])
-            cylinder(d = 30, h = z_flg + turntable_top_t);
-        for (a = [45, 135])
-            rotate([0, 0, a])
-                translate([0, 0, 7])
-                    rotate([0, 90, 0])
-                        translate([0, 0, 2])
-                            cylinder(d = set_screw_pilot_d, h = j1_stem_d / 2);
-
-        // 상판 하면 릴리프: 상부 베어링 내륜에만 접촉 (외륜·칼럼 림과 비접촉)
-        translate([0, 0, z_flg - 0.1])
-            difference() {
-                cylinder(d = turntable_top_d + 1, h = 0.9);
-                cylinder(d = BRG_6810ZZ[1] + 2, h = 1.1);
-            }
-
-        // 어깨 텅 체결 M5 ×4 (MEC-001 어깨부 인터페이스, 볼트 방위각 ≈ ±32°/±148°)
-        for (x = [-1, 1], y = [-1, 1])
-            translate([x * shoulder_mount_px / 2, y * shoulder_mount_py / 2, z_flg - 0.1])
+        // 컵 보어: 슬립 존(-53..-18) / 압입 존(-18..-10) / 숄더 링(ID56, -10..-8)
+        translate([0, 0, -53.1]) cylinder(d = BRG_6810ZZ[1] + 0.55, h = 35.1);
+        translate([0, 0, -18])
+            cylinder(d = BRG_6810ZZ[1] + bearing_press_fit, h = 8);
+        translate([0, 0, -10]) cylinder(d = 56, h = 2);
+        // 스템 선단 ⌀8 보어 (기어박스 출력축, 물림 14) + M4 무두 파일럿 ×2
+        translate([0, 0, -8 - stem_len - 0.1])
+            cylinder(d = gbx_out_shaft_d + clearance_fit, h = 14.1);
+        for (p = [[0, -79], [90, -74]])
+            rotate(p[0]) translate([0, 0, p[1]])
+                rotate([0, 90, 0]) cylinder(d = set_screw_pilot_d, h = tt_stem_d);
+        // 어깨 장착 M5 ×6
+        for (pt = [[40, 25], [40, -25], [-40, 25], [-40, -25], [0, 25], [0, -25]])
+            translate([pt[0], pt[1], -turntable_top_t - 0.1])
                 bolt_hole(shoulder_mount_bolt_d, turntable_top_t + 0.2);
-
-        // 경량화: 상판 하면 포켓 ×4 (깊이 4) — 0/90/180/270° (볼트 방위각 회피),
-        // 외륜 비접촉 릴리프 존(r > 33) 내라 베어링 하중 경로 무영향
-        for (a = [0 : 90 : 270])
-            rotate([0, 0, a]) translate([40, 0, z_flg - 0.1])
-                linear_extrude(4.1)
-                    offset(r = 4) square([8, 10], center = true);
     }
 }
 
