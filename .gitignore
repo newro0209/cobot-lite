@@ -433,3 +433,7 @@ cad/build/
 *.bin
 .arduino/
 firmware/**/build/
+
+# OpenSCAD 소스 디렉터리 재포함 — 위 Python 템플릿의 parts/, /lib/ 무시 무효화
+!parts/
+!lib/

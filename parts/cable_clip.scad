@@ -1,0 +1,18 @@
+// 케이블 가이드 클립 (cable guide clip) — 관절 외부 배선 경로용 (ELE-005)
+// 링크 외면에 M3 체결. 필요 수량은 BOM 참조 (상완·하완 각 2~3개).
+include <../config/parameters.scad>
+use <../lib/utils.scad>
+
+module cable_clip_part(cable_d = 8) {
+    difference() {
+        union() {
+            cable_clip(cable_d = cable_d, t = 6);
+            // 체결 베이스
+            translate([-cable_d / 2 - 7, -(cable_d / 2 + 2.5), 0])
+                cube([7, cable_d + 5, 6]);
+        }
+        translate([-cable_d / 2 - 3.5, 0, -0.1]) bolt_hole(3, 6.2);
+    }
+}
+
+cable_clip_part();

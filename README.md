@@ -22,9 +22,31 @@
 | [assembly/assembly.scad](assembly/assembly.scad) | 전체 조립 모델 (간섭 확인용) |
 | [export/stl/](export/stl/) | 출력용 STL |
 | [docs/](docs/) | BOM, 질량/토크 예산, 설계 결정 기록 |
+| [tools/](tools/) | 검증 스크립트 (간섭 검사, 질량 리포트) |
+
+## 뷰어 (main.scad)
+
+OpenSCAD에서 [main.scad](main.scad)를 열면 Customizer로 제어:
+
+- `part`: `assembly`(조립) / `exploded`(분해) / `print`(출력 배치) / 단일 부품명
+- `[Pose]` J1~J4 관절 각도 (가동 범위 주석 참조)
+- `[Labels]` `show_labels`(순번+규격 지시선/빌보드 라벨), `label_size`, `label_detail`(서브 피처·하드웨어 인스턴스 전수 라벨 — 베어링/볼트/와셔/너트 개별 H## + 혼·리브·측판 등)
+- `[Hardware]` `show_hardware` — 베어링·숄더 볼트·너트·와셔 목업 (assembly 전용)
+- `[Exploded]` `explode` 분해 거리
+
+컬러: 정적 부품 무채색 톤온톤, 동적 부품 카테고리 톤온톤(상완 파랑, J3 구동계 주황, 평행사변형 초록, 하완 청록, 손목/공구 보라 — [lib/colors.scad](lib/colors.scad)). 라벨 동색. 구매품은 무채 톤온톤(모터 다크 → 볼트 → 와셔 → 베어링 라이트 스틸).
 
 ## STL 내보내기
 
-```
+```sh
 openscad -o export/stl/<부품명>.stl parts/<부품명>.scad
 ```
+
+## 검증
+
+```sh
+pwsh tools/check_asm.ps1    # 자세 그리드 간섭 검사 (assembly check=1/2)
+pwsh tools/mass_report.ps1  # STL 체적 → 질량·바운딩 박스 (MEC-007/MFG-004)
+```
+
+가동 범위: J2 −20°~+45°, J3 −80°~+20°, 접힘각 J3−J2 ≥ −95° ([docs/design-notes.md](docs/design-notes.md) §3).
