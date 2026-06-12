@@ -28,10 +28,7 @@ module actuator(motor_len, gbx_len) {
 }
 
 // 관절별 액추에이터 프리셋
-module actuator_J1() { actuator(motor_len_SF2424, gbx_len_20to1); }
-module actuator_J2() { actuator(motor_len_SF2424, gbx_len_20to1); }
 module actuator_J3() { actuator(motor_len_SF2423, gbx_len_20to1); }
-module actuator_J4() { actuator(motor_len_SF2422, gbx_len_5to1); }
 
 // 베어링 (zz 실드 단순 링)
 module bearing(brg) {

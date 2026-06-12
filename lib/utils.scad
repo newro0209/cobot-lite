@@ -34,7 +34,7 @@ module nema17_mount(h) {
 }
 
 // 숄더 볼트 피벗 홀 (CON-001)
-// d = 숄더 직경 (shoulder_d_small | shoulder_d_large)
+// d = 숄더 직경 (shoulder_d_large)
 module pivot_hole(d, h) {
     cylinder(d = d + clearance_fit, h = h);
 }
@@ -66,26 +66,6 @@ module cable_clip(cable_d = 8, t = 4) {
         // 삽입 개구 (개구 폭 = 케이블 직경의 70%)
         translate([0, -cable_d * 0.35, -0.1])
             cube([cable_d, cable_d * 0.7, t + 0.2]);
-    }
-}
-
-// 평행/구동 링크 바 (625ZZ 양단, MEC-002/MEC-001a)
-// len = 피벗 간 거리. 보스 상면에서 베어링 압입, 하면 내륜 도피 홀.
-module link_bar(len) {
-    boss_t = BRG_625ZZ[2] + 4;
-    difference() {
-        union() {
-            translate([0, -link_bar_w / 2, (boss_t - link_bar_t) / 2])
-                cube([len, link_bar_w, link_bar_t]);
-            for (x = [0, len])
-                translate([x, 0, 0]) cylinder(d = link_boss_d, h = boss_t);
-        }
-        for (x = [0, len]) {
-            translate([x, 0, boss_t - BRG_625ZZ[2]])
-                bearing_seat([BRG_625ZZ[0], BRG_625ZZ[1], BRG_625ZZ[2] + 0.1]);
-            translate([x, 0, -0.1])
-                cylinder(d = (BRG_625ZZ[0] + BRG_625ZZ[1]) / 2, h = boss_t + 0.2);
-        }
     }
 }
 
