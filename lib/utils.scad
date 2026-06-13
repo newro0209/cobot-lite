@@ -1,25 +1,20 @@
 // 공통 모듈 (common modules) — 베어링 시트, 볼트 홀 등
 include <../config/parameters.scad>
 
-// 베어링 시트 (bearing seat): 압입 공차 적용 포켓
-// brg = [내경, 외경, 폭] (예: BRG_608ZZ)
-module bearing_seat(brg) {
-    cylinder(d = brg[1] + bearing_press_fit, h = brg[2]);
-}
-
-// 베어링 시트 + 내륜 도피 홀 (관통)
-// wall = 시트 아래 받침 두께
-module bearing_pocket(brg, wall = 2) {
-    union() {
-        translate([0, 0, wall]) bearing_seat(brg);
-        // 내륜 접촉 방지: 내경보다 크고 외경보다 작은 도피 홀
-        cylinder(d = (brg[0] + brg[1]) / 2, h = wall + 0.1);
-    }
-}
-
 // 관통 볼트 홀 (clearance hole)
 module bolt_hole(d, h) {
     cylinder(d = d + bolt_hole_oversize, h = h);
+}
+
+// 베어링 포켓 컷 (3D 차집합) — 압입 개방면(z0)서 OD 시트, 반대면에 내륜 도피 턱.
+//   brg = [ID, OD, W], t = 호스트 두께 (> W 여야 턱 생김). 좌표: z0 = 압입 개방면.
+//   시트 = OD+압입(음수) 깊이 W → 외륜 압입. 도피 = (ID+OD)/2 (내륜 OD < 도피 < 외륜 OD)
+//   → z=W 단차가 외륜 walk-out 정지 턱, 회전 내륜은 도피 보어 안에서 비접촉.
+module bearing_pocket_cut(brg, t) {
+    translate([0, 0, -0.1])                                   // 시트 (외륜 압입)
+        cylinder(d = brg[1] + bearing_press_fit, h = brg[2] + 0.1);
+    translate([0, 0, brg[2]])                                 // 내륜 도피 + 외륜 턱
+        cylinder(d = (brg[0] + brg[1]) / 2, h = t - brg[2] + 0.2);
 }
 
 // NEMA 17 모터 마운트 홀 패턴 (CON-004: SF24 = 42각 NEMA 17 호환)
@@ -31,30 +26,6 @@ module nema17_mount(h) {
             translate([x * nema17_hole_pitch / 2, y * nema17_hole_pitch / 2, 0])
                 bolt_hole(nema17_bolt_d, h);
     }
-}
-
-// 숄더 볼트 피벗 홀 (CON-001)
-// d = 숄더 직경 (shoulder_d_large)
-module pivot_hole(d, h) {
-    cylinder(d = d + clearance_fit, h = h);
-}
-
-// 베어링 보스 (bearing boss): 출력물 허브에 베어링 내경 직접 안착 (CON-003)
-// 내경 기준 압입 — bearing_press_fit(음수)만큼 키운다
-module bearing_boss(brg, h) {
-    cylinder(d = brg[0] - bearing_press_fit, h = h);
-}
-
-// 육각 너트 포켓 (nut pocket) — 차집합용. af = 평면폭(across flats)
-module nut_pocket(af, t) {
-    cylinder(d = (af + clearance_fit) / cos(30), h = t, $fn = 6);
-}
-
-// 리미트 스위치 장착 홀 쌍 (ELE-004) — 차집합용, X축 방향 피치
-module ls_mount_holes(h) {
-    for (x = [-1, 1])
-        translate([x * ls_hole_pitch / 2, 0, 0])
-            cylinder(d = ls_hole_d, h = h);
 }
 
 // 케이블 가이드 클립 (ELE-005) — 외면 부착형 C-클립, cable_d 다발 직경
@@ -75,66 +46,49 @@ module apply_part_color(col = undef) {
     else color(col) children();
 }
 
-// 지시선(leader) + 빌보드(billboard) 라벨 — 프리뷰용, $vpr 카메라 추종
-// p = 앵커(부품 측), v = 지시선 벡터 (라벨은 p+v 위치)
-// 주의: 상위 프레임이 회전된 경우 빌보드가 카메라를 향하지 않음 — 월드 프레임에서 호출할 것
-module leader_label(p, v, txt, size = 3.2, col = "white", line_d = 1.4) {
-    color(col) {
-        hull() {
-            translate(p) sphere(d = line_d, $fn = 12);
-            translate(p + v) sphere(d = line_d, $fn = 12);
-        }
-        translate(p + v) rotate($vpr) translate([2, -size / 2, 0])
-            linear_extrude(0.6) text(txt, size = size);
-    }
+// 꺾임 무릎 변위 (팔레타이저 오프셋) = 굴절각 성분 + 보조 오프셋 성분.
+//   각도 성분 ≈ pos·(1-pos)·L·tan(bend) (= link_kink_angle 기여),
+//   koff = 중심선에 직접 더해지는 보조 오프셋 (= link_kink_offset).
+//   bend=0 & koff=0 → 변위 0 = 직선 빔 (후방 호환).
+function knee_h(L, pos, bend, koff = 0) = pos * (1 - pos) * L * tan(bend) + koff;
+
+// 중심선 y — 꺾임 폴리라인 A(0,0)-무릎(pos·L, knee_h)-B(L,0) (보조 굴절 추종용).
+//   kink 0 → 전 구간 0 (직선, 후방 호환)
+function beam_cl_y(L, pos, bend, koff, x) =
+    let (kx = pos * L, ky = knee_h(L, pos, bend, koff))
+    x <= kx ? ky * x / kx : ky * (L - x) / (L - kx);
+
+// 스탠드오프 위치(2D y = 부품 z): 현 기준 고정 오프셋을 중심선 굴절에 실어
+//   등두께 밴드 내부에 유지 (벨트가 굴절 따라 올라감). kink 0 → 기존 위치.
+function ua_standoff_pos(x) =
+    arm_standoff_z + beam_cl_y(L1, ua_bend_pos, ua_bend_deg, ua_kink_off, x);
+function fa_standoff_pos(x) =
+    beam_cl_y(forearm_len, fa_bend_pos, fa_bend_deg, fa_kink_off, x);
+
+// 오목 경계 필렛 (2D) — 모폴로지 클로징 offset(r=-f) ∘ offset(r=+f).
+//   볼록 외곽은 보존하고 내측(허브↔몸체·굴절·러그 접합) 오목 모서리만 반경 f 라운드.
+//   f=0 → 무변화. union 합성부에서 생기는 날카로운 안쪽 코너 제거에 공통 사용.
+module fillet_concave2d(f = fillet_r) {
+    offset(r = -f) offset(r = f) children();
 }
 
-// 꺾임 무릎 높이 (팔레타이저 오프셋) — pos·(1-pos)·L·tan(bend) 근사 정의
-function knee_h(L, pos, bend) = pos * (1 - pos) * L * tan(bend);
-
-// 꺾임 빔 측판 외형 2D — 러그 3원 hull (무릎 = 현 위쪽 +y).
-// 창 없는 충전 단면: 볼록 껍질이라 현 아래 모서리는 직선 (스탠드오프 벨트)
-module bent_beam2d(L, pos, bend, r) {
-    hull() {
-        circle(r = r);
-        translate([pos * L, knee_h(L, pos, bend)]) circle(r = r);
-        translate([L, 0]) circle(r = r);
-    }
-}
-
-// 환형 섹터 2D (아크 슬롯 차집합용) — a0 → a1 (deg, 반시계)
-module annulus_sector2d(r_in, r_out, a0, a1) {
-    n = max(8, ceil(64 * (a1 - a0) / 360));
-    polygon(concat(
-        [for (i = [0 : n]) let (a = a0 + (a1 - a0) * i / n)
-            r_out * [cos(a), sin(a)]],
-        [for (i = [n : -1 : 0]) let (a = a0 + (a1 - a0) * i / n)
-            r_in * [cos(a), sin(a)]]));
-}
-
-// 플랜지 커플러 장착 컷 (구동 부품 z0 자유면, 차집합용) — 분할 클램프 대체.
-// 평 플랜지(스피곳 없음) → 중앙 축-팁 도피(관통) + 플랜지 셀프태핑 볼트 ×n(블라인드)
-module coupler_mount_cut(plate_t) {
-    translate([0, 0, -0.1])
-        cylinder(d = cpl_bore + clearance_fit + 0.6, h = plate_t + 0.2); // 축 팁
-    bdepth = min(plate_t - 1, 6);
-    for (i = [0 : cpl_bolt_n - 1])
-        rotate([0, 0, 45 + i * 360 / cpl_bolt_n])
-            translate([cpl_bolt_r, 0, -0.05])
-                cylinder(d = cpl_bolt_d - 0.4, h = bdepth + 0.05);  // M3 셀프태핑
-}
-
-// 축 클램프 슬릿 + M3 핀치 볼트 (차집합용) — [유산: 분할 클램프 방식, 현재 미사용]
-// bore_d = 클램프 보어, depth = 보어 깊이, body_d = 보스 외경
-module shaft_clamp_cut(bore_d, depth, body_d) {
+// 다절점 등두께 굴절 밴드 2D — pts: 중심선 정점 리스트(첫·끝 = 허브 중심).
+//   인접 정점쌍을 스타디움 hull로 이어 반폭 bw 등두께 띠 → 모든 굴절점에서
+//   상·하단 외곽선이 동시에 같은 방향으로 꺾여 두께 일정.
+//   양끝 허브 원 r(>bw) — 베어링·축 수용 위해 몸체보다 두꺼움.
+//   fillet_concave2d(f): 허브↔몸체·굴절 내측 오목 경계만 반경 f 필렛.
+//   정점이 일직선이면 직선 밴드 (후방 호환).
+module bent_band2d(pts, r, bw = ua_body_hw) {
+    n = len(pts);
+    fillet_concave2d()
     union() {
-        cylinder(d = bore_d + clearance_fit / 2, h = depth);
-        // 슬릿
-        translate([-1, 0, -0.1]) cube([2, body_d / 2 + 1, depth + 0.1]);
-        // M3 핀치 볼트 (슬릿 직교) — 보어 반경과 보스 반경 사이
-        translate([0, (bore_d / 2 + body_d / 2) / 2 + 1, depth / 2])
-            rotate([0, 90, 0])
-                translate([0, 0, -body_d / 2 - 1])
-                    bolt_hole(3, body_d + 2);
+        for (i = [0 : n - 2])
+            hull() {
+                translate(pts[i])     circle(r = bw);
+                translate(pts[i + 1]) circle(r = bw);
+            }
+        translate(pts[0])     circle(r = r);
+        translate(pts[n - 1]) circle(r = r);
     }
 }
+
