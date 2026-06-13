@@ -1,19 +1,20 @@
 // 디버그: J2 축 수평 단면 — y-스택 체결 검증용 (임시 도구)
 // openscad -o sec.png --camera=... -D J2s=0 -D J3s=-45 tools/dbg_section.scad
-include <../config/parameters.scad>
 use <../assembly/assembly.scad>
 
-J2s = 0;    // j2=0이면 팔 전장이 단면에 들어온다
-J3s = -45;
-sec_z = 0;  // 단면 z 오프셋 (J2 축 기준)
-
-// vsec=true → 수직 단면 (x-z 평면, y=0), 아니면 J2 축 수평 단면
-vsec = false;
-intersection() {
-    robot(J2s, J3s, 0, false);
-    if (vsec)
-        translate([-600, -1, -200]) cube([1200, 2, 600]);
-    else
-        translate([-600, -600, sec_z - 1])
-            cube([1200, 1200, 2]);
+module debug_section(j2 = 0, j3 = -45, section_z = 0, vertical = false) {
+    $fn = 64;
+    intersection() {
+        robot(j2, j3, 0, false);
+        if (vertical)
+            translate([-600, -1, -200]) cube([1200, 2, 600]);
+        else
+            translate([-600, -600, section_z - 1])
+                cube([1200, 1200, 2]);
+    }
 }
+
+debug_section(j2 = is_undef(J2s) ? 0 : J2s,
+              j3 = is_undef(J3s) ? -45 : J3s,
+              section_z = is_undef(sec_z) ? 0 : sec_z,
+              vertical = is_undef(vsec) ? false : vsec);

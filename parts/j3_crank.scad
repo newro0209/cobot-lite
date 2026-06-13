@@ -5,33 +5,49 @@
 //   보스 OD 25 — +Y 측판 6805ZZ 내륜 안착.
 //   외단 플랜지 — 기성 플랜지 커플러 M4 ×4 볼트온.
 // 좌표: 부품 z0 = 디스크 -Y면(핀측, world y4.7). 출력: 보스 직립, 디스크 바닥 — 서포트 불요.
-include <../config/parameters.scad>
 use <../lib/utils.scad>
 
+// ── 공개 스펙 (assembly·링키지가 참조) ──
+function j3_crank_radius() = 36;   // 핀 피치 반경 (= forearm 혼 R)
+function j3_crank_disk_d() = 52;   // 중앙 디스크 외경
+
 module crank2d() {
+    disk_d = j3_crank_disk_d();
+    crank_radius = j3_crank_radius();
+    pin_lug_r = 8;
+
     fillet_concave2d()
     union() {
-        circle(d = crank_disk_d);
+        circle(d = disk_d);
         hull() {
-            circle(d = crank_disk_d * 0.7);
-            translate([crank_R, 0]) circle(r = 8);
+            circle(d = disk_d * 0.7);
+            translate([crank_radius, 0]) circle(r = pin_lug_r);
         }
     }
 }
 
 module j3_crank(col = undef) {
-    boss_len  = (crank_flange_y0 - crank_disk_y0) - arm_plate_t;
-    flange_z0 = arm_plate_t + boss_len;
-    flange_top = flange_z0 + arm_plate_t;
-    apply_part_color(col) difference() {
-        union() {
-            linear_extrude(arm_plate_t) crank2d();
+    $fn = 64;
+    clearance = 0.3;
+    plate_t = 9;
+    disk_d = j3_crank_disk_d();
+    crank_radius = j3_crank_radius();
+    pin_lug_r = 8;
+    boss_id = 12;
+    small_shoulder_d = 5;
+    center_x = (max(disk_d / 2, crank_radius + pin_lug_r) - disk_d / 2) / 2;
+
+    translate([-center_x, 0, -plate_t / 2]) {
+        apply_part_color(col) difference() {
+            union() {
+                linear_extrude(plate_t) crank2d();
+            }
+            // 중앙 경량 보어 (관통)
+            translate([0, 0, -0.1]) cylinder(d = boss_id, h = plate_t + 0.2);
+            // 핀 숄더 보어 (관통)
+            translate([crank_radius, 0, -0.1])
+                cylinder(d = small_shoulder_d + clearance / 2, h = plate_t + 0.2);
         }
-        // 중앙 경량 보어 (관통)
-        translate([0, 0, -0.1]) cylinder(d = crank_boss_id, h = flange_top + 0.2);
-        // 핀 숄더 보어 (관통)
-        translate([crank_R, 0, -0.1])
-            cylinder(d = shoulder_d_small + clearance_fit / 2, h = arm_plate_t + 0.2);
     }
 }
 

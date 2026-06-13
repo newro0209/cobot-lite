@@ -16,9 +16,9 @@
 
 | 경로 | 내용 |
 |---|---|
-| [config/parameters.scad](config/parameters.scad) | 전역 파라미터 (치수, 공차, 감속비) — 단일 치수 소스 |
-| [parts/](parts/) | 부품별 .scad (1 파일 1 부품) |
-| [lib/utils.scad](lib/utils.scad) | 공통 모듈 (베어링 시트, 볼트 홀 등) |
+| [parts/](parts/) | 부품별 .scad (1 파일 1 부품, 단품 치수는 각 파일에 지역 정의) |
+| [lib/utils.scad](lib/utils.scad) | 치수 독립 공통 모듈 (베어링 시트, 볼트 홀 등) |
+| [lib/vitamins/](lib/vitamins/) | 구매품 목업 형상 라이브러리 |
 | [assembly/assembly.scad](assembly/assembly.scad) | 전체 조립 모델 (간섭 확인용) |
 | [export/stl/](export/stl/) | 출력용 STL |
 | [docs/](docs/) | BOM, 질량/토크 예산, 설계 결정 기록 |
@@ -39,6 +39,7 @@ OpenSCAD에서 [main.scad](main.scad)를 열면 Customizer로 제어:
 
 ```sh
 openscad -o export/stl/<부품명>.stl parts/<부품명>.scad
+openscad -o export/stl/<구매품명>.stl lib/vitamins/<구매품명>.scad
 ```
 
 ## 검증

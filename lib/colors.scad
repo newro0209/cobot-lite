@@ -8,31 +8,23 @@ function color_tone(c, gain = 1, bias = 0) =
      clamp01(c[1] * gain + bias),
      clamp01(c[2] * gain + bias)];
 
-/* 출력 부품 — 카테고리 기본색(rgb 벡터). */
-C_UPPERARM     = [0.23, 0.44, 0.62];   // 상완 계열 (파랑)
-C_FOREARM      = [0.18, 0.54, 0.54];   // 하완 계열 (청록)
-C_LINKAGE      = [0.76, 0.64, 0.24];   // J3 링키지 계열 (골드)
-C_CLIP         = [0.63, 0.54, 0.82];   // 케이블 클립 계열 (보라)
+function upper_arm_base_color() = [0.23, 0.44, 0.62];
+function forearm_base_color() = [0.18, 0.54, 0.54];
+function linkage_base_color() = [0.76, 0.64, 0.24];
+function clip_base_color() = [0.63, 0.54, 0.82];
 
-/* 조립 호출부 변형색 — 동일 부품 반복 사용 시 미세 구분. */
-C_UPPERARM_POS = color_tone(C_UPPERARM, 1.12, 0.02);
-C_UPPERARM_NEG = color_tone(C_UPPERARM, 0.88);
+function upper_arm_pos_color() = color_tone(upper_arm_base_color(), 1.12, 0.02);
+function upper_arm_neg_color() = color_tone(upper_arm_base_color(), 0.88);
+function forearm_pos_color() = color_tone(forearm_base_color(), 1.10, 0.02);
+function forearm_neg_color() = color_tone(forearm_base_color(), 0.86);
+function j3_crank_color() = color_tone(linkage_base_color(), 0.96);
+function drive_link_color() = color_tone(linkage_base_color(), 1.14, 0.02);
+function cable_clip_a_color() = color_tone(clip_base_color(), 1.08, 0.02);
+function cable_clip_b_color() = color_tone(clip_base_color(), 0.86);
 
-C_FOREARM_POS  = color_tone(C_FOREARM, 1.10, 0.02);
-C_FOREARM_NEG  = color_tone(C_FOREARM, 0.86);
-
-C_J3_CRANK     = color_tone(C_LINKAGE, 0.96);
-C_DRIVE_LINK   = color_tone(C_LINKAGE, 1.14, 0.02);
-
-C_CABLE_CLIP_A = color_tone(C_CLIP, 1.08, 0.02);
-C_CABLE_CLIP_B = color_tone(C_CLIP, 0.86);
-
-/* 구매품(vitamin) 기준색 — rgb 벡터 (모듈 내부 톤온톤 파생용: col*f).
-   assembly가 이 기준색을 vitamin 모듈에 col 인자로 전달하면,
-   모듈이 col*0.45(어둡게)·col*1.3(밝게)로 내부 디테일을 구분한다. */
-C_VITAMIN   = [0.16, 0.16, 0.16];   // 모터+기어박스 (흑)
-C_BOLT      = [0.42, 0.42, 0.42];   // 숄더 볼트·너트 (다크 스틸)
-C_WASHER    = [0.50, 0.50, 0.50];   // 와셔
-C_BEARING   = [0.62, 0.62, 0.63];   // 베어링 (스틸)
-C_COUPLER   = [0.72, 0.72, 0.74];   // 플랜지 커플러 (알루미늄)
-// 리미트 스위치 세부 색(몸체·레버·롤러·핀)은 lib/vitamins.scad 내부 정의 (use 스코프 자족).
+function vitamin_color() = [0.16, 0.16, 0.16];
+function bolt_color() = [0.42, 0.42, 0.42];
+function washer_color() = [0.50, 0.50, 0.50];
+function bearing_color() = [0.62, 0.62, 0.63];
+function coupler_color() = [0.72, 0.72, 0.74];
+// 리미트 스위치 세부 색은 lib/vitamins/kw12_limit_switch.scad 내부 정의이다.
