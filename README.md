@@ -2,7 +2,7 @@
 
 1kg 페이로드급 4축 절충형(palletizing-type) 협동 로봇(collaborative robot) 팔.
 
-공장 부분 자동화용: 필터 하우징 수직 픽업 → 압입기/융착기 지그에 수직 안착. 공구 자세는 수동 평행사변형 링크(passive parallelogram linkage)로 항상 연직(tool-down) 유지.
+공장 부분 자동화용: 필터 하우징 수직 픽업 → 압입기/융착기 지그에 수직 안착.
 
 ## 산출물 범위
 
@@ -15,7 +15,6 @@
 
 | 경로 | 내용 |
 |---|---|
-| [REQUIREMENTS.md](REQUIREMENTS.md) | 요구사항 명세 — 모든 설계 결정의 기준 |
 | [config/parameters.scad](config/parameters.scad) | 전역 파라미터 (치수, 공차, 감속비) — 단일 치수 소스 |
 | [parts/](parts/) | 부품별 .scad (1 파일 1 부품) |
 | [lib/utils.scad](lib/utils.scad) | 공통 모듈 (베어링 시트, 볼트 홀 등) |
@@ -30,11 +29,11 @@ OpenSCAD에서 [main.scad](main.scad)를 열면 Customizer로 제어:
 
 - `part`: `assembly`(조립) / `exploded`(분해) / `print`(출력 배치) / 단일 부품명
 - `[Pose]` J1~J4 관절 각도 (가동 범위 주석 참조)
-- `[Labels]` `show_labels`(순번+규격 지시선/빌보드 라벨), `label_size`, `label_detail`(서브 피처·하드웨어 인스턴스 전수 라벨 — 베어링/볼트/와셔/너트 개별 H## + 혼·리브·측판 등)
+- `[Labels]` `show_labels`(순번+규격 지시선/빌보드 라벨), `label_size`, `label_detail`(세부 라벨은 얇은 지시선+순번만 표시, 와셔/유틸 피처까지의 순번-이름-수치 매핑은 [assembly/assembly.scad](assembly/assembly.scad) 주석 참조)
 - `[Hardware]` `show_hardware` — 베어링·숄더 볼트·너트·와셔 목업 (assembly 전용)
 - `[Exploded]` `explode` 분해 거리
 
-컬러: 정적 부품 무채색 톤온톤, 동적 부품 카테고리 톤온톤(상완 파랑, J3 구동계 주황, 평행사변형 초록, 하완 청록, 손목/공구 보라 — [lib/colors.scad](lib/colors.scad)). 라벨 동색. 구매품은 무채 톤온톤(모터 다크 → 볼트 → 와셔 → 베어링 라이트 스틸).
+컬러: 의미 카테고리별 기본 팔레트 + 조립 호출부 변형색([lib/colors.scad](lib/colors.scad)). parts 모듈은 `col` 파라미터만 받아 같은 부품도 배치별 톤 차이를 줄 수 있다. 라벨은 카테고리 색을 따르고, 구매품은 무채 톤온톤(모터 다크 → 볼트 → 와셔 → 베어링 라이트 스틸).
 
 ## STL 내보내기
 
@@ -48,5 +47,3 @@ openscad -o export/stl/<부품명>.stl parts/<부품명>.scad
 pwsh tools/check_asm.ps1    # 자세 그리드 간섭 검사 (assembly check=1/2)
 pwsh tools/mass_report.ps1  # STL 체적 → 질량·바운딩 박스 (MEC-007/MFG-004)
 ```
-
-가동 범위: J2 −20°~+45°, J3 −80°~+20°, 접힘각 J3−J2 ≥ −95° ([docs/design-notes.md](docs/design-notes.md) §3).

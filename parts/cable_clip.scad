@@ -3,8 +3,8 @@
 include <../config/parameters.scad>
 use <../lib/utils.scad>
 
-module cable_clip_part(cable_d = 8) {
-    difference() {
+module cable_clip_part(cable_d = 8, col = undef) {
+    apply_part_color(col) difference() {
         union() {
             cable_clip(cable_d = cable_d, t = 6);
             // 체결 베이스
