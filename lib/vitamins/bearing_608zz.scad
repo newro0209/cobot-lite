@@ -1,10 +1,17 @@
+
 use <common.scad>
 
-// [bore, OD, width] (mm) — 부품이 베어링 치수 필요할 때 가져다 쓰는 노출 값.
+// 용어:
+// 1. 내경(bore)
+// 2. 외경(outer diameter)
+// 3. 폭(width)
+// 4. 베어링(bearing)
+//
+// [내경(bore), 외경(outer diameter), 폭(width)] mm — 부품이 베어링(bearing) 치수를 참조할 때 쓰는 공개 값이다.
 function bearing_608zz_spec() = [8, 22, 7];
 
-module bearing_608zz(col = [0.62, 0.62, 0.63]) {
-    bearing(bearing_608zz_spec(), col);
+module bearing_608zz(part_color = [0, 0.6, 1]) {
+    bearing(bearing_spec = bearing_608zz_spec(), part_color = part_color);
 }
 
 bearing_608zz();

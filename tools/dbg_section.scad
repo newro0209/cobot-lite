@@ -1,4 +1,12 @@
-// 디버그: J2 축 수평 단면 — y-스택 체결 검증용 (임시 도구)
+// 디버그(debug): J2 축(axis) 수평 단면(horizontal section)으로 y-스택(y-stack) 체결을 검증하는 임시 도구입니다.
+//
+// 용어
+// 1. 디버그(Debug)
+// 2. 축(Axis)
+// 3. 수평 단면(Horizontal section)
+// 4. 수직 단면(Vertical section)
+// 5. 체결 스택(Fastener stack)
+//
 // openscad -o sec.png --camera=... -D J2s=0 -D J3s=-45 tools/dbg_section.scad
 use <../assembly/assembly.scad>
 
